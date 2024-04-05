@@ -1,7 +1,9 @@
 // Our hash map will only accomodate strings as keys
-class HashMap {
+// It does not handle collision
+export default class HashMap {
     constructor() {
         this.size = 16;
+        this.loadFactor = 0.75;
         this.map = new Array(this.size);
         this.clear();
     }
@@ -30,6 +32,13 @@ class HashMap {
         return this.map[hashCode];
     }
 
+    has(key) {
+        const hashCode = this.hash(key);
+        if (this.map[hashCode] === null)
+            return false;
+        return true;
+    }
+
     remove(key) {
         const hashCode = this.hash(key);
         if (this.map[hashCode] === null)
@@ -41,5 +50,14 @@ class HashMap {
     clear() {
         for (let i = 0; i < this.size; ++i)
             this.map[i] = null;
+    }
+
+    length() {
+        // How many keys are stored in our hash map
+        return this.map.reduce(function(total, b) {
+            if (b === null)
+                return total;
+            return ++total;
+        }, 0);
     }
 }
