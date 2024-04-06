@@ -5,6 +5,7 @@ import Node from './node.mjs'
 export default class HashMap {
     constructor() {
         this.size = 16;
+        this.currentCapacity = 0;
         this.loadFactor = 0.75;
         this.map = new Array(this.size);
         this.clear();
@@ -62,5 +63,29 @@ export default class HashMap {
                 return total;
             return ++total;
         }, 0);
+    }
+
+    keys() {
+        const arrKeys = [];
+        for (let i = 0; i < this.size; ++i)
+            if (this.map[i] !== null)
+                arrKeys.push(this.map[i].key);
+        return arrKeys;
+    }
+
+    values() {
+        const arrValues = [];
+        for (let i = 0; i < this.size; ++i)
+            if (this.map[i] !== null)
+                arrValues.push(this.map[i].value);
+        return arrValues;
+    }
+
+    entries() {
+        const arrEntries = [];
+        for (let i = 0; i < this.size; ++i)
+            if (this.map[i] !== null)
+                arrEntries.push([this.map[i].key, this.map[i].value]);
+        return arrEntries;
     }
 }
