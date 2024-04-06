@@ -1,3 +1,5 @@
+import Node from './node.mjs'
+
 // Our hash map will only accomodate strings as keys
 // It does not handle collision
 export default class HashMap {
@@ -21,15 +23,16 @@ export default class HashMap {
     }
 
     set(key, value) {
+        let node = new Node(key, value);
         const hashCode = this.hash(key);
-        this.map[hashCode] = value;
+        this.map[hashCode] = node;
     }
 
     get(key) {
         const hashCode = this.hash(key);
         if (this.map[hashCode] === null)
             return null;
-        return this.map[hashCode];
+        return this.map[hashCode].value;
     }
 
     has(key) {
