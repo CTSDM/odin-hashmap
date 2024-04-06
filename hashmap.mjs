@@ -1,4 +1,4 @@
-import Node from './node.mjs'
+import LinkedList from './linkedList.mjs'
 
 // Our hash map will only accomodate strings as keys
 // It does not handle collision
@@ -29,17 +29,29 @@ export default class HashMap {
         if (this.currentCapacity + 1 > Math.floor(this.size * this.loadFactor)) {
             this.remap();
         }
-
-        let node = new Node(key, value);
+        // Each 'bucket' of our hash map will be composed by a linked list
+        // We only create a new linked list if the 'bucket' is empty
         const hashCode = this.hash(key);
-        if (this.map[hashCode] === null)
+        if (this.map[hashCode] === null) {
+            let linkedList = new LinkedList();
+            linkedList.append(key, value);
+            this.map[hashCode] = linkedList;
             ++this.currentCapacity;
-        this.map[hashCode] = node;
+        } else {
+            // We first check if the new key already exists in the linked list
+            // if it exists we overwrite the node
+            // if it doesn't exist we append it
+            let indexKey = this.map[hashCode].findKey(key);
+            if (indexKey === null) {
+                this.map[hashCode].append(key, value);
+                ++this.currentCapacity;
+            } else {
+                this.map[hashCode].at(indexKey).value = value;
+            }
+        }
     }
 
     remap() {
-        console.log(this.map);
-        console.log('remapping');
         const currentEntries = this.entries();
         this.size *= 2;
         this.currentCapacity = 0;
@@ -47,19 +59,26 @@ export default class HashMap {
         currentEntries.forEach(function(pair) {
             this.set(pair[0], pair[1]);
         }, this);
-        console.log(this.map);
     }
 
     get(key) {
         const hashCode = this.hash(key);
         if (this.map[hashCode] === null)
             return null;
-        return this.map[hashCode].value;
+        let linkedList = this.map[hashCode];
+        let keyIndex = linkedList.findKey(key);
+        if (keyIndex === null)
+            return null
+        return this.map[hashCode].at(keyIndex).value;
     }
 
     has(key) {
         const hashCode = this.hash(key);
         if (this.map[hashCode] === null)
+            return false;
+        let linkedList = this.map[hashCode];
+        let keyIndex = linkedList.findKey(key);
+        if (keyIndex === null)
             return false;
         return true;
     }
@@ -68,7 +87,12 @@ export default class HashMap {
         const hashCode = this.hash(key);
         if (this.map[hashCode] === null)
             return false;
-        this.map[hashCode] = null;
+        let linkedList = this.map[hashCode];
+        let keyIndex = linkedList.findKey(key);
+        if (keyIndex === null)
+            return false;
+        linkedList.removeAt(keyIndex);
+        --this.currentCapacity;
         return true;
     }
 
@@ -79,35 +103,30 @@ export default class HashMap {
     }
 
     length() {
-        // How many keys are stored in our hash map
-        return this.map.reduce(function(total, b) {
-            if (b === null)
-                return total;
-            return ++total;
-        }, 0);
+        return this.currentCapacity;
     }
 
     keys() {
-        const arrKeys = [];
+        let arrKeys = [];
         for (let i = 0; i < this.size; ++i)
             if (this.map[i] !== null)
-                arrKeys.push(this.map[i].key);
+                arrKeys = arrKeys.concat(this.map[i].getKeys());
         return arrKeys;
     }
 
     values() {
-        const arrValues = [];
+        let arrValues = [];
         for (let i = 0; i < this.size; ++i)
             if (this.map[i] !== null)
-                arrValues.push(this.map[i].value);
+                arrValues = arrValues.concat(this.map[i].getValues());
         return arrValues;
     }
 
     entries() {
-        const arrEntries = [];
+        let arrEntries = [];
         for (let i = 0; i < this.size; ++i)
             if (this.map[i] !== null)
-                arrEntries.push([this.map[i].key, this.map[i].value]);
+                arrEntries = arrEntries.concat(this.map[i].getEntries());
         return arrEntries;
     }
 }

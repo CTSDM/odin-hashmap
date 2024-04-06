@@ -94,6 +94,35 @@ export default class LinkedList {
         return null;
     }
 
+    getKeys() {
+        return this.#getItems('key');
+    }
+
+    getValues() {
+        return this.#getItems('value');
+    }
+
+    #getItems(type) {
+        let node = this.#head;
+        const arr = [];
+        while (node !== null) {
+            arr.push(node[type]);
+            node = node.nextNode;
+        }
+        return arr;
+    }
+
+    getEntries() {
+        let node = this.#head;
+        const arr = [];
+        while (node !== null) {
+            arr.push([node.key, node.value]);
+            node = node.nextNode;
+        }
+        return arr;
+    }
+
+
     toString() {
         let size = this.size();
         if (size === 0)
