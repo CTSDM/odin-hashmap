@@ -142,7 +142,7 @@ export default class LinkedList {
         }
     }
 
-    remove(index) {
+    removeAt(index) {
         const linklist_length = this.size() - 1;
         if (index > linklist_length || index < 0)
             throw new Error('The given index is not within the bounds of the linked list.');
