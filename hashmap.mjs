@@ -7,8 +7,8 @@ export default class HashMap {
         this.size = 16;
         this.currentCapacity = 0;
         this.loadFactor = 0.75;
-        this.map = new Array(this.size);
-        this.clear();
+        this.map;
+        this.createMap();
     }
 
     hash(key) {
@@ -24,9 +24,30 @@ export default class HashMap {
     }
 
     set(key, value) {
+        // Every time we add a new element we need to check the following:
+        // Will the new currentCapacity be greater than the threshold set by loadFactor?
+        if (this.currentCapacity + 1 > Math.floor(this.size * this.loadFactor)) {
+            this.remap();
+        }
+
         let node = new Node(key, value);
         const hashCode = this.hash(key);
+        if (this.map[hashCode] === null)
+            ++this.currentCapacity;
         this.map[hashCode] = node;
+    }
+
+    remap() {
+        console.log(this.map);
+        console.log('remapping');
+        const currentEntries = this.entries();
+        this.size *= 2;
+        this.currentCapacity = 0;
+        this.createMap();
+        currentEntries.forEach(function(pair) {
+            this.set(pair[0], pair[1]);
+        }, this);
+        console.log(this.map);
     }
 
     get(key) {
@@ -51,7 +72,8 @@ export default class HashMap {
         return true;
     }
 
-    clear() {
+    createMap() {
+        this.map = new Array(this.size);
         for (let i = 0; i < this.size; ++i)
             this.map[i] = null;
     }
